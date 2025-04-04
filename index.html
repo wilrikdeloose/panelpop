@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comic Viewer Final</title>
+  <style>
+    :root {
+      --blur-amount: 20px;
+      --brightness: 0.8;
+      --bg-opacity: 0.8;
+      --bg-zoom: 120%;
+      --bg-offset: -10%;
+      --column-count: 4;
+      --column-gap: 20px;
+      --item-margin: 20px;
+      --border-width: 6px;
+      --padding: 20px;
+      --transition-duration: 1.0s;
+      --greyscale-amount: 0.8;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      overflow-y: hidden;
+      background-color: #fff;
+      font-family: Arial, sans-serif;
+    }
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 1000;
+    }
+    #overlay svg {
+      width: 15vw;
+      height: auto;
+    }
+    #background {
+      position: fixed;
+      top: var(--bg-offset);
+      left: var(--bg-offset);
+      width: var(--bg-zoom);
+      height: var(--bg-zoom);
+      background-size: var(--bg-zoom);
+      background-position: center center;
+      filter: blur(var(--blur-amount)) brightness(var(--brightness));
+      opacity: var(--bg-opacity);
+      transition: background-image 1s ease-in-out;
+      z-index: -1;
+    }
+    #canvas {
+      padding: var(--padding);
+      position: absolute;
+      top: 0; left: 0;
+      transition: transform var(--transition-duration) ease-in-out;
+      transform-origin: top left;
+      width: calc(100% - calc(var(--padding) * 2));
+    }
+    .masonry-container {
+      column-count: var(--column-count);
+      column-gap: var(--column-gap);
+      width: 100%;
+    }
+    .comic-item {
+      display: inline-block;
+      width: 100%;
+      margin-bottom: var(--item-margin);
+      break-inside: avoid;
+    }
+    .comic-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border: var(--border-width) solid black;
+      box-sizing: border-box;
+      transition: filter var(--transition-duration) ease-in-out;
+    }
+    .comic-img.inactive {
+      filter: grayscale(var(--greyscale-amount));
+    }
+    .cover-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      border: var(--border-width) solid black;
+      box-sizing: border-box;
+      transition: filter var(--transition-duration) ease-in-out;
+    }
+    .cover-image.inactive {
+      filter: grayscale(var(--greyscale-amount));
+    }
+    .cover-item {
+      display: block;
+      width: 100%;
+      margin-bottom: var(--item-margin);
+      break-inside: avoid;
+    }
+    /* Make sure cover spans all columns */
+    .cover-item {
+      column-span: all;
+    }
+  </style>
+</head>
+<body>
+
+<div id="overlay">
+  <svg viewBox="0 0 100 100"><polygon points="30,20 30,80 80,50" fill="#000"/></svg>
+</div>
+
+<div id="background"></div>
+<div id="canvas">
+  <div class="masonry-container" id="masonry"></div>
+</div>
+
+<script>
+// Application configuration
+const config = {
+  // Background effect settings
+  background: {
+    blurAmount: 20, // px
+    brightness: 0.8, // 0 to 1
+    opacity: 0.8, // 0 to 1
+    zoom: 120, // percentage
+    offset: -10 // percentage
+  },
+  
+  // Image transition settings
+  transition: {
+    duration: 1.0, // seconds
+    initialDelay: 5000, // ms delay before starting animation
+    timeBetweenSlides: 4000, // ms between slides
+    greyOutDelay: 500 // ms to wait after greying out before moving to next slide
+  },
+  
+  // Layout settings
+  layout: {
+    columnCount: 4,
+    columnGap: 20, // px
+    itemMargin: 20, // px
+    borderWidth: 6, // px
+    padding: 20 // px
+  },
+  
+  // Image effect settings
+  effects: {
+    greyscaleAmount: 0.75 // 0 to 1 (0 = no greyscale, 1 = full greyscale)
+  },
+  
+  // Image paths
+  images: [
+    { path: "1_0.png", isCover: true, chapter: 1 },
+    { path: "1_1.png", isCover: false, chapter: 1 },
+    { path: "1_2.png", isCover: false, chapter: 1 },
+    { path: "1_3.png", isCover: false, chapter: 1 },
+    { path: "1_4.png", isCover: false, chapter: 1 },
+    { path: "1_5.png", isCover: false, chapter: 1 },
+    { path: "1_6.png", isCover: false, chapter: 1 },
+    { path: "1_7.png", isCover: false, chapter: 1 },
+    { path: "1_8.png", isCover: false, chapter: 1 },
+    { path: "1_9.png", isCover: false, chapter: 1 },
+    { path: "2_0.png", isCover: true, chapter: 2 },
+    { path: "2_1.png", isCover: false, chapter: 2 },
+    { path: "2_2.png", isCover: false, chapter: 2 },
+    { path: "2_3.png", isCover: false, chapter: 2 },
+    { path: "2_4.png", isCover: false, chapter: 2 },
+    { path: "2_5.png", isCover: false, chapter: 2 },
+    { path: "2_6.png", isCover: false, chapter: 2 },
+    { path: "2_7.png", isCover: false, chapter: 2 },
+    { path: "2_8.png", isCover: false, chapter: 2 },
+    { path: "2_9.png", isCover: false, chapter: 2 },
+  ]
+};
+
+const canvas = document.getElementById('canvas');
+const masonry = document.getElementById('masonry');
+const background = document.getElementById('background');
+let positions = [];
+let allImages = [];
+
+// Apply initial configuration
+function applyConfig() {
+  // Apply background settings
+  document.documentElement.style.setProperty('--blur-amount', `${config.background.blurAmount}px`);
+  document.documentElement.style.setProperty('--brightness', config.background.brightness);
+  document.documentElement.style.setProperty('--bg-opacity', config.background.opacity);
+  document.documentElement.style.setProperty('--bg-zoom', `${config.background.zoom}%`);
+  document.documentElement.style.setProperty('--bg-offset', `${config.background.offset}%`);
+  
+  // Apply layout settings
+  document.documentElement.style.setProperty('--column-count', config.layout.columnCount);
+  document.documentElement.style.setProperty('--column-gap', `${config.layout.columnGap}px`);
+  document.documentElement.style.setProperty('--item-margin', `${config.layout.itemMargin}px`);
+  document.documentElement.style.setProperty('--border-width', `${config.layout.borderWidth}px`);
+  document.documentElement.style.setProperty('--padding', `${config.layout.padding}px`);
+  
+  // Apply transition settings
+  document.documentElement.style.setProperty('--transition-duration', `${config.transition.duration}s`);
+  
+  // Apply effect settings
+  document.documentElement.style.setProperty('--greyscale-amount', config.effects.greyscaleAmount);
+}
+
+function setupImages(callback) {
+  let loaded = 0;
+  
+  // Set initial background to first image
+  if (config.images.length > 0) {
+    background.style.backgroundImage = `url(${config.images[0].path})`;
+    updateBackgroundFilter();
+  }
+  
+  config.images.forEach((imgObj, index) => {
+    const item = document.createElement('div');
+    
+    // Add data attribute for chapter
+    item.dataset.chapter = imgObj.chapter;
+    
+    // Check if this is a cover image
+    if (imgObj.isCover) {
+      item.className = 'cover-item';
+      const img = new Image();
+      img.src = imgObj.path;
+      img.className = "cover-image";
+      allImages.push(img);
+      
+      img.onload = () => {
+        loaded++;
+        if (loaded === config.images.length) {
+          setTimeout(() => { calculatePositions(); if (callback) callback(); }, 100);
+        }
+      };
+      img.onerror = () => console.error("Failed to load image:", imgObj.path);
+      
+      item.appendChild(img);
+      masonry.appendChild(item);
+    } else {
+      // Regular comic items
+      item.className = 'comic-item';
+      const img = new Image();
+      img.src = imgObj.path;
+      img.className = "comic-img";
+      allImages.push(img);
+      
+      img.onload = () => {
+        loaded++;
+        if (loaded === config.images.length) {
+          setTimeout(() => { calculatePositions(); if (callback) callback(); }, 100);
+        }
+      };
+      img.onerror = () => console.error("Failed to load image:", imgObj.path);
+      
+      item.appendChild(img);
+      masonry.appendChild(item);
+    }
+  });
+}
+
+function updateBackgroundFilter() {
+  background.style.filter = `blur(var(--blur-amount)) brightness(var(--brightness))`;
+  background.style.opacity = getComputedStyle(document.documentElement).getPropertyValue('--bg-opacity');
+}
+
+function calculatePositions() {
+  positions = [];
+  // Include both cover-item and comic-item elements
+  document.querySelectorAll('.comic-item, .cover-item').forEach(item => {
+    const rect = item.getBoundingClientRect();
+    positions.push({
+      x: item.offsetLeft - config.layout.padding,
+      y: item.offsetTop - config.layout.padding,
+      w: rect.width + (config.layout.padding * 2),
+      h: rect.height + (config.layout.padding * 2)
+    });
+  });
+}
+
+function startComicAnimation() {
+  let idx = 0;
+  let prevIdx = -1;
+  
+  function moveToImage() {
+    if (idx >= positions.length) return;
+    
+    function zoomToCurrentImage() {
+      const p = positions[idx];
+  
+      // Update background image to match current foreground image
+      const currentImg = allImages[idx];
+      if (currentImg) {
+        background.style.backgroundImage = `url(${currentImg.src})`;
+        updateBackgroundFilter();
+      }
+  
+      const scaleX = window.innerWidth / p.w;
+      const scaleY = window.innerHeight / p.h;
+      const scale = Math.min(scaleX, scaleY);
+  
+      const translateX = -(p.x - (window.innerWidth / scale - p.w) / 2);
+      const translateY = -(p.y - (window.innerHeight / scale - p.h) / 2);
+  
+      canvas.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+  
+      prevIdx = idx;
+      idx++;
+      
+      // For cover images, use a different timing before moving to the next image
+      if (config.images[prevIdx].isCover) {
+        setTimeout(moveToImage, config.transition.timeBetweenSlides * 1.5); // Longer time on cover
+      } else {
+        setTimeout(moveToImage, config.transition.timeBetweenSlides);
+      }
+    }
+    
+    // Set current image to color
+    if (idx < allImages.length) {
+      allImages[idx].classList.remove('inactive');
+    }
+    
+    // If not the first image, we need to ensure previous is greyed
+    if (prevIdx >= 0 && prevIdx < allImages.length) {
+      allImages[prevIdx].classList.add('inactive');
+      // Wait for greying transition to be visible before moving on
+      setTimeout(zoomToCurrentImage, config.transition.greyOutDelay);
+    } else {
+      // For the first image, wait briefly to ensure the colorizing is visible
+      setTimeout(zoomToCurrentImage, config.transition.greyOutDelay);
+    }
+  }
+  
+  moveToImage();
+}
+
+document.getElementById('overlay').onclick = () => {
+  document.getElementById('overlay').style.display = 'none';
+  
+  // Request fullscreen mode
+  if (document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen();
+  } else if (document.documentElement.webkitRequestFullscreen) { /* Safari */
+    document.documentElement.webkitRequestFullscreen();
+  } else if (document.documentElement.msRequestFullscreen) { /* IE11 */
+    document.documentElement.msRequestFullscreen();
+  }
+  
+  // Add delay before starting the animation
+  setTimeout(() => {
+    // Set initial background to first image
+    if (allImages.length > 0) {
+      background.style.backgroundImage = `url(${allImages[0].src})`;
+      updateBackgroundFilter();
+    }
+    
+    // Grey out all images
+    allImages.forEach(img => {
+      img.classList.add('inactive');
+    });
+    
+    // Wait for greying effect to be visible, then start animation
+    setTimeout(() => {
+      startComicAnimation();
+    }, config.transition.greyOutDelay);
+  }, config.transition.initialDelay);
+};
+
+// Add handler for exiting fullscreen
+document.addEventListener('fullscreenchange', handleFullscreenChange);
+document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+function handleFullscreenChange() {
+  if (!document.fullscreenElement && 
+      !document.webkitFullscreenElement && 
+      !document.mozFullScreenElement && 
+      !document.msFullscreenElement) {
+    // Reset the animation if user exits fullscreen
+    // (Uncomment if you want to restart the animation when exiting fullscreen)
+    // location.reload();
+  }
+}
+
+window.onresize = calculatePositions;
+
+// Initialize the application
+applyConfig();
+setupImages();
+</script>
+
+</body>
+</html>
