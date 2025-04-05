@@ -18,6 +18,8 @@
       --padding: 20px;
       --transition-duration: 1.0s;
       --greyscale-amount: 0.8;
+      --glow-transition-duration: 1.2s;
+      --glow-color: rgba(255, 215, 0, 0.8);
     }
     
     body {
@@ -85,7 +87,8 @@
       display: block;
       border: var(--border-width) solid black;
       box-sizing: border-box;
-      transition: filter var(--transition-duration) ease-in-out;
+      transition: filter var(--transition-duration) ease-in-out,
+                  box-shadow var(--glow-transition-duration) ease-in-out;
       line-height: 0;
       margin: 0;
       padding: 0;
@@ -99,7 +102,8 @@
       display: block;
       border: var(--border-width) solid black;
       box-sizing: border-box;
-      transition: filter var(--transition-duration) ease-in-out;
+      transition: filter var(--transition-duration) ease-in-out,
+                  box-shadow var(--glow-transition-duration) ease-in-out;
       line-height: 0;
       margin: 0;
       padding: 0;
@@ -107,6 +111,16 @@
     .cover-image.inactive {
       filter: grayscale(var(--greyscale-amount));
     }
+    
+    /* Outer glow effect for active image */
+    .comic-img.active, .cover-image.active {
+      box-shadow: 0 0 20px var(--glow-color); /* Golden glow */
+      z-index: 5;
+      filter: brightness(1.1); /* Slightly brighter */
+      transition: box-shadow var(--glow-transition-duration) ease-in-out, 
+                  filter var(--glow-transition-duration) ease-in-out;
+    }
+    
     .cover-item {
       display: block;
       width: 100%;
@@ -208,7 +222,7 @@ const config = {
   transition: {
     duration: 1.0, // seconds
     initialDelay: 0, // ms delay before starting animation
-    timeBetweenSlides: 1000, // ms between slides
+    timeBetweenSlides: 2000, // ms between slides
     greyOutDelay: 500 // ms to wait after greying out before moving to next slide
   },
   
@@ -228,65 +242,17 @@ const config = {
   
   // Image paths
   images: [
-    { 
-      path: "1_0.png", 
-      isCover: true, 
-      chapter: 1,
-      narration: {
-        line: "The adventure begins...",
-        position: "bottom-right"
-      }
-    },
-    { 
-      path: "1_1.png", 
-      isCover: false, 
-      chapter: 1,
-      narration: {
-        line: "Meanwhile, at the bookstore...",
-        position: "top-left"
-      }
-    },
-    { 
-      path: "1_2.png", 
-      isCover: false, 
-      chapter: 1 
-    },
-    { 
-      path: "1_3.png", 
-      isCover: false, 
-      chapter: 1,
-      narration: {
-        line: "Suddenly!",
-        position: "top-right"
-      }
-    },
-    { 
-      path: "1_4.png", 
-      isCover: false, 
-      chapter: 1 
-    },
-    { 
-      path: "1_5.png", 
-      isCover: false, 
-      chapter: 1,
-      narration: {
-        line: "The revelation...",
-        position: "bottom-left"
-      }
-    },
+    { path: "1_0.png", isCover: true,  chapter: 1, narration: { line: "The adventure begins...", position: "bottom-right" } },
+    { path: "1_1.png", isCover: false, chapter: 1, narration: { line: "Meanwhile, at the bookstore...", position: "top-left" } },
+    { path: "1_2.png", isCover: false, chapter: 1 },
+    { path: "1_3.png", isCover: false, chapter: 1, narration: { line: "Suddenly!", position: "top-right" } },
+    { path: "1_4.png", isCover: false, chapter: 1 },
+    { path: "1_5.png", isCover: false, chapter: 1, narration: { line: "The revelation...", position: "bottom-left" } },
     { path: "1_6.png", isCover: false, chapter: 1 },
     { path: "1_7.png", isCover: false, chapter: 1 },
     { path: "1_8.png", isCover: false, chapter: 1 },
     { path: "1_9.png", isCover: false, chapter: 1 },
-    { 
-      path: "2_0.png", 
-      isCover: true, 
-      chapter: 2,
-      narration: {
-        line: "Chapter 2: The New Beginning",
-        position: "bottom-right"
-      }
-    },
+    { path: "2_0.png", isCover: true,  chapter: 2, narration: { line: "Chapter 2: The New Beginning", position: "bottom-right" } },
     { path: "2_1.png", isCover: false, chapter: 2 },
     { path: "2_2.png", isCover: false, chapter: 2 },
     { path: "2_3.png", isCover: false, chapter: 2 },
@@ -297,7 +263,7 @@ const config = {
     { path: "2_8.png", isCover: false, chapter: 2 },
     { path: "2_9.png", isCover: false, chapter: 2 },
     // Chapter 3
-    { path: "3_0.png", isCover: true, chapter: 3 },
+    { path: "3_0.png", isCover: true,  chapter: 3 },
     { path: "3_1.png", isCover: false, chapter: 3 },
     { path: "3_2.png", isCover: false, chapter: 3 },
     { path: "3_3.png", isCover: false, chapter: 3 },
@@ -308,7 +274,7 @@ const config = {
     { path: "3_8.png", isCover: false, chapter: 3 },
     { path: "3_9.png", isCover: false, chapter: 3 },
     // Chapter 4
-    { path: "4_0.png", isCover: true, chapter: 4 },
+    { path: "4_0.png", isCover: true,  chapter: 4 },
     { path: "4_1.png", isCover: false, chapter: 4 },
     { path: "4_2.png", isCover: false, chapter: 4 },
     { path: "4_3.png", isCover: false, chapter: 4 },
@@ -319,7 +285,7 @@ const config = {
     { path: "4_8.png", isCover: false, chapter: 4 },
     { path: "4_9.png", isCover: false, chapter: 4 },
     // Chapter 5
-    { path: "5_0.png", isCover: true, chapter: 5 },
+    { path: "5_0.png", isCover: true,  chapter: 5 },
     { path: "5_1.png", isCover: false, chapter: 5 },
     { path: "5_2.png", isCover: false, chapter: 5 },
     { path: "5_3.png", isCover: false, chapter: 5 },
@@ -535,6 +501,13 @@ function startComicAnimation() {
   
       canvas.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
   
+      // After zooming is complete, add the active class to the new current image
+      setTimeout(() => {
+        if (idx < allImages.length) {
+          allImages[idx].classList.add('active');
+        }
+      }, 100); // Short delay to ensure transitions are smooth
+      
       prevIdx = idx;
       idx++;
       
@@ -552,12 +525,25 @@ function startComicAnimation() {
     }
     
     // If not the first image, we need to ensure previous is greyed
+    // and remove active glow before starting the transition
     if (prevIdx >= 0 && prevIdx < allImages.length) {
-      allImages[prevIdx].classList.add('inactive');
-      // Wait for greying transition to be visible before moving on
-      setTimeout(zoomToCurrentImage, config.transition.greyOutDelay);
+      // Start by removing the active class (which will trigger glow fade-out)
+      allImages[prevIdx].classList.remove('active');
+      
+      // Wait a moment for the glow to start fading before greying out
+      setTimeout(() => {
+        allImages[prevIdx].classList.add('inactive');
+        
+        // Wait for greying transition to be visible before moving on
+        setTimeout(zoomToCurrentImage, config.transition.greyOutDelay);
+      }, 200); // Short delay to let glow start fading first
     } else {
-      // For the first image, wait briefly to ensure the colorizing is visible
+      // For the first image, set it active immediately
+      if (idx < allImages.length) {
+        allImages[idx].classList.add('active');
+      }
+      
+      // Wait briefly to ensure the colorizing is visible
       setTimeout(zoomToCurrentImage, config.transition.greyOutDelay);
     }
   }
