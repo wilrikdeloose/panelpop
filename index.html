@@ -208,13 +208,13 @@ const config = {
   transition: {
     duration: 1.0, // seconds
     initialDelay: 0, // ms delay before starting animation
-    timeBetweenSlides: 4000, // ms between slides
+    timeBetweenSlides: 1000, // ms between slides
     greyOutDelay: 500 // ms to wait after greying out before moving to next slide
   },
   
   // Layout settings
   layout: {
-    columnCount: 4,
+    columnCount: 3,
     columnGap: 20, // px
     itemMargin: 20, // px
     borderWidth: 6, // px
@@ -295,7 +295,40 @@ const config = {
     { path: "2_6.png", isCover: false, chapter: 2 },
     { path: "2_7.png", isCover: false, chapter: 2 },
     { path: "2_8.png", isCover: false, chapter: 2 },
-    { path: "2_9.png", isCover: false, chapter: 2 }
+    { path: "2_9.png", isCover: false, chapter: 2 },
+    // Chapter 3
+    { path: "3_0.png", isCover: true, chapter: 3 },
+    { path: "3_1.png", isCover: false, chapter: 3 },
+    { path: "3_2.png", isCover: false, chapter: 3 },
+    { path: "3_3.png", isCover: false, chapter: 3 },
+    { path: "3_4.png", isCover: false, chapter: 3 },
+    { path: "3_5.png", isCover: false, chapter: 3 },
+    { path: "3_6.png", isCover: false, chapter: 3 },
+    { path: "3_7.png", isCover: false, chapter: 3 },
+    { path: "3_8.png", isCover: false, chapter: 3 },
+    { path: "3_9.png", isCover: false, chapter: 3 },
+    // Chapter 4
+    { path: "4_0.png", isCover: true, chapter: 4 },
+    { path: "4_1.png", isCover: false, chapter: 4 },
+    { path: "4_2.png", isCover: false, chapter: 4 },
+    { path: "4_3.png", isCover: false, chapter: 4 },
+    { path: "4_4.png", isCover: false, chapter: 4 },
+    { path: "4_5.png", isCover: false, chapter: 4 },
+    { path: "4_6.png", isCover: false, chapter: 4 },
+    { path: "4_7.png", isCover: false, chapter: 4 },
+    { path: "4_8.png", isCover: false, chapter: 4 },
+    { path: "4_9.png", isCover: false, chapter: 4 },
+    // Chapter 5
+    { path: "5_0.png", isCover: true, chapter: 5 },
+    { path: "5_1.png", isCover: false, chapter: 5 },
+    { path: "5_2.png", isCover: false, chapter: 5 },
+    { path: "5_3.png", isCover: false, chapter: 5 },
+    { path: "5_4.png", isCover: false, chapter: 5 },
+    { path: "5_5.png", isCover: false, chapter: 5 },
+    { path: "5_6.png", isCover: false, chapter: 5 },
+    { path: "5_7.png", isCover: false, chapter: 5 },
+    { path: "5_8.png", isCover: false, chapter: 5 },
+    { path: "5_9.png", isCover: false, chapter: 5 }
   ]
 };
 
@@ -304,6 +337,11 @@ const masonry = document.getElementById('masonry');
 const background = document.getElementById('background');
 let positions = [];
 let allImages = [];
+
+// Add a helper function for image paths
+function getImagePath(imagePath) {
+  return `images/${imagePath}`;
+}
 
 // Apply initial configuration
 function applyConfig() {
@@ -378,7 +416,7 @@ function setupImages(callback) {
   
   // Set initial background to first image
   if (config.images.length > 0) {
-    background.style.backgroundImage = `url(${config.images[0].path})`;
+    background.style.backgroundImage = `url(${getImagePath(config.images[0].path)})`;
     updateBackgroundFilter();
   }
   
@@ -396,7 +434,7 @@ function setupImages(callback) {
     if (imgObj.isCover) {
       item.className = 'cover-item';
       const img = new Image();
-      img.src = imgObj.path;
+      img.src = getImagePath(imgObj.path);
       img.className = "cover-image";
       // Let CSS handle border styling
       allImages.push(img);
@@ -423,7 +461,7 @@ function setupImages(callback) {
       // Regular comic items
       item.className = 'comic-item';
       const img = new Image();
-      img.src = imgObj.path;
+      img.src = getImagePath(imgObj.path);
       img.className = "comic-img";
       // Let CSS handle border styling
       allImages.push(img);
@@ -482,7 +520,9 @@ function startComicAnimation() {
       // Update background image to match current foreground image
       const currentImg = allImages[idx];
       if (currentImg) {
-        background.style.backgroundImage = `url(${currentImg.src})`;
+        // Extract the original path from the image object
+        const originalPath = config.images[idx].path;
+        background.style.backgroundImage = `url(${getImagePath(originalPath)})`;
         updateBackgroundFilter();
       }
   
@@ -540,8 +580,8 @@ document.getElementById('overlay').onclick = () => {
   // Add delay before starting the animation
   setTimeout(() => {
     // Set initial background to first image
-    if (allImages.length > 0) {
-      background.style.backgroundImage = `url(${allImages[0].src})`;
+    if (allImages.length > 0 && config.images.length > 0) {
+      background.style.backgroundImage = `url(${getImagePath(config.images[0].path)})`;
       updateBackgroundFilter();
     }
     

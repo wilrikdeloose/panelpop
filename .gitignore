@@ -1,5 +1,6 @@
 # Ignore all PNG files
 *.png
+images/
 
 # Logs
 logs
