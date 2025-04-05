@@ -76,6 +76,8 @@
       width: 100%;
       margin-bottom: var(--item-margin);
       break-inside: avoid;
+      border: none;
+      padding: 0;
     }
     .comic-img {
       width: 100%;
@@ -84,6 +86,9 @@
       border: var(--border-width) solid black;
       box-sizing: border-box;
       transition: filter var(--transition-duration) ease-in-out;
+      line-height: 0;
+      margin: 0;
+      padding: 0;
     }
     .comic-img.inactive {
       filter: grayscale(var(--greyscale-amount));
@@ -95,6 +100,9 @@
       border: var(--border-width) solid black;
       box-sizing: border-box;
       transition: filter var(--transition-duration) ease-in-out;
+      line-height: 0;
+      margin: 0;
+      padding: 0;
     }
     .cover-image.inactive {
       filter: grayscale(var(--greyscale-amount));
@@ -104,10 +112,72 @@
       width: 100%;
       margin-bottom: var(--item-margin);
       break-inside: avoid;
+      border: none;
+      padding: 0;
     }
     /* Make sure cover spans all columns */
     .cover-item {
       column-span: all;
+    }
+    
+    /* Narration box base styling */
+    .narration-box {
+      background-color: white;
+      padding: 8px 12px;
+      font-family: "Comic Sans MS", "Comic Sans", cursive;
+      font-size: 16px;
+      position: absolute;
+      z-index: 10;
+      border: var(--border-width) solid black;
+      box-sizing: border-box;
+      max-width: 80%; /* Allow more width */
+      word-wrap: break-word; /* Enable word wrapping */
+      overflow-wrap: break-word; /* Modern browsers */
+      hyphens: auto; /* Allow hyphenation */
+      white-space: normal; /* Ensure text wraps */
+      line-height: 1.3; /* Better line spacing for readability */
+      font-style: italic; /* Make text italic */
+    }
+    
+    /* Position-specific styles */
+    .narration-box-top-left {
+      text-align: left;
+    }
+    
+    .narration-box-top-right {
+      text-align: right;
+    }
+    
+    .narration-box-bottom-left {
+      text-align: left;
+    }
+    
+    .narration-box-bottom-right {
+      text-align: right;
+    }
+    
+    /* Image container for positioning narration */
+    .img-container {
+      position: relative;
+      width: 100%;
+      height: auto;
+      display: block;
+      line-height: 0;
+      padding: 0;
+      margin: 0;
+    }
+    
+    /* Ensure images have the border styling we need */
+    .comic-img, .cover-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: var(--border-width) solid black;
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+      line-height: 0;
+      position: relative;
     }
   </style>
 </head>
@@ -127,7 +197,7 @@
 const config = {
   // Background effect settings
   background: {
-    blurAmount: 20, // px
+    blurAmount: 40, // px
     brightness: 0.8, // 0 to 1
     opacity: 0.8, // 0 to 1
     zoom: 120, // percentage
@@ -137,7 +207,7 @@ const config = {
   // Image transition settings
   transition: {
     duration: 1.0, // seconds
-    initialDelay: 5000, // ms delay before starting animation
+    initialDelay: 0, // ms delay before starting animation
     timeBetweenSlides: 4000, // ms between slides
     greyOutDelay: 500 // ms to wait after greying out before moving to next slide
   },
@@ -158,17 +228,65 @@ const config = {
   
   // Image paths
   images: [
-    { path: "1_0.png", isCover: true, chapter: 1 },
-    { path: "1_1.png", isCover: false, chapter: 1 },
-    { path: "1_2.png", isCover: false, chapter: 1 },
-    { path: "1_3.png", isCover: false, chapter: 1 },
-    { path: "1_4.png", isCover: false, chapter: 1 },
-    { path: "1_5.png", isCover: false, chapter: 1 },
+    { 
+      path: "1_0.png", 
+      isCover: true, 
+      chapter: 1,
+      narration: {
+        line: "The adventure begins...",
+        position: "bottom-right"
+      }
+    },
+    { 
+      path: "1_1.png", 
+      isCover: false, 
+      chapter: 1,
+      narration: {
+        line: "Meanwhile, at the bookstore...",
+        position: "top-left"
+      }
+    },
+    { 
+      path: "1_2.png", 
+      isCover: false, 
+      chapter: 1 
+    },
+    { 
+      path: "1_3.png", 
+      isCover: false, 
+      chapter: 1,
+      narration: {
+        line: "Suddenly!",
+        position: "top-right"
+      }
+    },
+    { 
+      path: "1_4.png", 
+      isCover: false, 
+      chapter: 1 
+    },
+    { 
+      path: "1_5.png", 
+      isCover: false, 
+      chapter: 1,
+      narration: {
+        line: "The revelation...",
+        position: "bottom-left"
+      }
+    },
     { path: "1_6.png", isCover: false, chapter: 1 },
     { path: "1_7.png", isCover: false, chapter: 1 },
     { path: "1_8.png", isCover: false, chapter: 1 },
     { path: "1_9.png", isCover: false, chapter: 1 },
-    { path: "2_0.png", isCover: true, chapter: 2 },
+    { 
+      path: "2_0.png", 
+      isCover: true, 
+      chapter: 2,
+      narration: {
+        line: "Chapter 2: The New Beginning",
+        position: "bottom-right"
+      }
+    },
     { path: "2_1.png", isCover: false, chapter: 2 },
     { path: "2_2.png", isCover: false, chapter: 2 },
     { path: "2_3.png", isCover: false, chapter: 2 },
@@ -177,7 +295,7 @@ const config = {
     { path: "2_6.png", isCover: false, chapter: 2 },
     { path: "2_7.png", isCover: false, chapter: 2 },
     { path: "2_8.png", isCover: false, chapter: 2 },
-    { path: "2_9.png", isCover: false, chapter: 2 },
+    { path: "2_9.png", isCover: false, chapter: 2 }
   ]
 };
 
@@ -210,6 +328,51 @@ function applyConfig() {
   document.documentElement.style.setProperty('--greyscale-amount', config.effects.greyscaleAmount);
 }
 
+function createNarrationBox(narration) {
+  const box = document.createElement('div');
+  box.className = `narration-box narration-box-${narration.position}`;
+  box.textContent = narration.line;
+  
+  // Calculate optimal width based on text length
+  // Use a more accurate width estimation: ~8px per character for Comic Sans
+  // Add extra for padding and adjust based on text length patterns
+  const textLength = narration.line.length;
+  let estimatedWidth;
+  
+  if (textLength < 10) {
+    // Very short text
+    estimatedWidth = textLength * 12 + 30; // More space per character for short phrases
+  } else if (textLength < 20) {
+    // Short to medium text
+    estimatedWidth = textLength * 10 + 40;
+  } else if (textLength < 40) {
+    // Medium text
+    estimatedWidth = textLength * 8 + 60;
+  } else {
+    // Long text - cap at a reasonable max width and let it wrap
+    estimatedWidth = Math.min(textLength * 7 + 80, 350);
+  }
+  
+  box.style.width = `${estimatedWidth}px`;
+  
+  // Apply direct positioning for more reliability
+  if (narration.position === 'top-left') {
+    box.style.top = '0';
+    box.style.left = '0';
+  } else if (narration.position === 'top-right') {
+    box.style.top = '0';
+    box.style.right = '0';
+  } else if (narration.position === 'bottom-left') {
+    box.style.bottom = '0';
+    box.style.left = '0';
+  } else if (narration.position === 'bottom-right') {
+    box.style.bottom = '0';
+    box.style.right = '0';
+  }
+  
+  return box;
+}
+
 function setupImages(callback) {
   let loaded = 0;
   
@@ -225,12 +388,17 @@ function setupImages(callback) {
     // Add data attribute for chapter
     item.dataset.chapter = imgObj.chapter;
     
+    // Create container for relative positioning
+    const container = document.createElement('div');
+    container.className = 'img-container';
+    
     // Check if this is a cover image
     if (imgObj.isCover) {
       item.className = 'cover-item';
       const img = new Image();
       img.src = imgObj.path;
       img.className = "cover-image";
+      // Let CSS handle border styling
       allImages.push(img);
       
       img.onload = () => {
@@ -241,7 +409,15 @@ function setupImages(callback) {
       };
       img.onerror = () => console.error("Failed to load image:", imgObj.path);
       
-      item.appendChild(img);
+      container.appendChild(img);
+      
+      // Add narration if specified
+      if (imgObj.narration && imgObj.narration.line) {
+        const narrationBox = createNarrationBox(imgObj.narration);
+        container.appendChild(narrationBox);
+      }
+      
+      item.appendChild(container);
       masonry.appendChild(item);
     } else {
       // Regular comic items
@@ -249,6 +425,7 @@ function setupImages(callback) {
       const img = new Image();
       img.src = imgObj.path;
       img.className = "comic-img";
+      // Let CSS handle border styling
       allImages.push(img);
       
       img.onload = () => {
@@ -259,7 +436,15 @@ function setupImages(callback) {
       };
       img.onerror = () => console.error("Failed to load image:", imgObj.path);
       
-      item.appendChild(img);
+      container.appendChild(img);
+      
+      // Add narration if specified
+      if (imgObj.narration && imgObj.narration.line) {
+        const narrationBox = createNarrationBox(imgObj.narration);
+        container.appendChild(narrationBox);
+      }
+      
+      item.appendChild(container);
       masonry.appendChild(item);
     }
   });
