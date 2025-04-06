@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comic Viewer Final</title>
+  <title>PanelPop</title>
   <style>
     :root {
       --blur-amount: 20px;
@@ -208,9 +208,9 @@ const config = {
   
   // Image transition settings
   transition: {
-    duration: 1.0, // seconds
-    initialDelay: 0, // ms delay before starting animation
-    timeBetweenSlides: 4000, // ms between slides
+    transitionEffectDuration: 1.0, // Time in seconds it takes for visual effects (like greyscale) to complete their transition
+    initialDelay: 5000, // ms delay before starting animation
+    timeBetweenSlides: 3500, // ms between slides
     greyOutDelay: 500 // ms to wait after greying out before moving to next slide
   },
   
@@ -315,8 +315,8 @@ function applyConfig() {
   document.documentElement.style.setProperty('--border-width', `${config.layout.borderWidth}px`);
   document.documentElement.style.setProperty('--padding', `${config.layout.padding}px`);
   
-  // Apply transition settings
-  document.documentElement.style.setProperty('--transition-duration', `${config.transition.duration}s`);
+  // Apply transition settings - controls how long visual transitions like greyscale fade take to complete
+  document.documentElement.style.setProperty('--transition-duration', `${config.transition.transitionEffectDuration}s`);
   
   // Apply effect settings
   document.documentElement.style.setProperty('--greyscale-amount', config.effects.greyscaleAmount);
@@ -494,12 +494,8 @@ function startComicAnimation() {
       prevIdx = idx;
       idx++;
       
-      // For cover images, use a different timing before moving to the next image
-      if (config.images[prevIdx].isCover) {
-        setTimeout(moveToImage, config.transition.timeBetweenSlides * 1.5); // Longer time on cover
-      } else {
-        setTimeout(moveToImage, config.transition.timeBetweenSlides);
-      }
+      // Use the same timing for all images, both cover and regular
+      setTimeout(moveToImage, config.transition.timeBetweenSlides);
     }
     
     // Make all images inactive (greyscale) except the current one
