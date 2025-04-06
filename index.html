@@ -294,6 +294,11 @@ const background = document.getElementById('background');
 let positions = [];
 let allImages = [];
 
+// Global state variables for animation control
+let isPaused = false;
+let currentTimeout = null;
+let currentFrameIndex = 0;
+
 // Add a helper function for image paths
 function getImagePath(imagePath) {
   return `images/${imagePath}`;
@@ -464,55 +469,143 @@ function calculatePositions() {
 }
 
 function startComicAnimation() {
-  let idx = 0;
-  let prevIdx = -1;
+  currentFrameIndex = 0;
+  isPaused = false;
+  moveToImage(false);
+}
+
+// Function to handle frame navigation and animation
+function moveToImage(manual = false) {
+  if (currentFrameIndex >= positions.length) return;
   
-  function moveToImage() {
-    if (idx >= positions.length) return;
-    
-    function zoomToCurrentImage() {
-      const p = positions[idx];
-  
-      // Update background image to match current foreground image
-      const currentImg = allImages[idx];
-      if (currentImg) {
-        // Extract the original path from the image object
-        const originalPath = config.images[idx].path;
-        background.style.backgroundImage = `url(${getImagePath(originalPath)})`;
-        updateBackgroundFilter();
-      }
-  
-      const scaleX = window.innerWidth / p.w;
-      const scaleY = window.innerHeight / p.h;
-      const scale = Math.min(scaleX, scaleY);
-  
-      const translateX = -(p.x - (window.innerWidth / scale - p.w) / 2);
-      const translateY = -(p.y - (window.innerHeight / scale - p.h) / 2);
-  
-      canvas.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
-  
-      prevIdx = idx;
-      idx++;
-      
-      // Use the same timing for all images, both cover and regular
-      setTimeout(moveToImage, config.transition.timeBetweenSlides);
+  function zoomToCurrentImage() {
+    const p = positions[currentFrameIndex];
+
+    // Update background image to match current foreground image
+    const currentImg = allImages[currentFrameIndex];
+    if (currentImg) {
+      // Extract the original path from the image object
+      const originalPath = config.images[currentFrameIndex].path;
+      background.style.backgroundImage = `url(${getImagePath(originalPath)})`;
+      updateBackgroundFilter();
     }
-    
-    // Make all images inactive (greyscale) except the current one
-    allImages.forEach((img, i) => {
-      if (i === idx) {
-        img.classList.remove('inactive');
-      } else {
-        img.classList.add('inactive');
+
+    const scaleX = window.innerWidth / p.w;
+    const scaleY = window.innerHeight / p.h;
+    const scale = Math.min(scaleX, scaleY);
+
+    const translateX = -(p.x - (window.innerWidth / scale - p.w) / 2);
+    const translateY = -(p.y - (window.innerHeight / scale - p.h) / 2);
+
+    canvas.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+
+    // Only increment the frame index and set up the next transition
+    // if this is part of the automatic animation (not manual navigation)
+    if (!manual) {
+      currentFrameIndex++;
+      
+      // Set up the next frame transition if not paused
+      if (!isPaused) {
+        currentTimeout = setTimeout(() => moveToImage(false), config.transition.timeBetweenSlides);
       }
-    });
-    
-    // Wait for greyscale transition to complete before zooming
-    setTimeout(zoomToCurrentImage, config.transition.greyOutDelay);
+    }
   }
   
-  moveToImage();
+  // Make all images inactive (greyscale) except the current one
+  allImages.forEach((img, i) => {
+    if (i === currentFrameIndex) {
+      img.classList.remove('inactive');
+    } else {
+      img.classList.add('inactive');
+    }
+  });
+  
+  // If manual navigation, zoom immediately; otherwise, wait for greyscale transition
+  if (manual) {
+    zoomToCurrentImage();
+  } else {
+    // Wait for greyscale transition to complete before zooming
+    currentTimeout = setTimeout(zoomToCurrentImage, config.transition.greyOutDelay);
+  }
 }
+
+// Function to manually go to previous frame
+function goToPreviousFrame() {
+  // Clear any pending timeouts
+  if (currentTimeout) {
+    clearTimeout(currentTimeout);
+    currentTimeout = null;
+  }
+  
+  // Pause the animation when using manual controls
+  isPaused = true;
+  
+  // Go to previous frame (ensure we don't go below 0)
+  currentFrameIndex = Math.max(0, currentFrameIndex - 1);
+  
+  // Focus on the previous frame
+  moveToImage(true);
+}
+
+// Function to manually go to next frame
+function goToNextFrame() {
+  // Clear any pending timeouts
+  if (currentTimeout) {
+    clearTimeout(currentTimeout);
+    currentTimeout = null;
+  }
+  
+  // Pause the animation when using manual controls
+  isPaused = true;
+  
+  // Go to next frame (ensure we don't go past the last frame)
+  currentFrameIndex = Math.min(positions.length - 1, currentFrameIndex + 1);
+  
+  // Focus on the next frame
+  moveToImage(true);
+}
+
+// Function to toggle pause/resume
+function togglePause() {
+  isPaused = !isPaused;
+  
+  if (isPaused) {
+    // If paused, clear any pending timeouts
+    if (currentTimeout) {
+      clearTimeout(currentTimeout);
+      currentTimeout = null;
+    }
+  } else {
+    // If resumed, continue animation from current frame
+    moveToImage(false);
+  }
+}
+
+// Handle keyboard controls
+function handleKeyboardControls(event) {
+  // Make sure the overlay is not visible (animation has started)
+  if (document.getElementById('overlay').style.display !== 'none') {
+    return;
+  }
+  
+  switch (event.key) {
+    case ' ': // Spacebar
+      togglePause();
+      event.preventDefault();
+      break;
+    case 'ArrowLeft':
+      goToPreviousFrame();
+      event.preventDefault();
+      break;
+    case 'ArrowRight':
+      goToNextFrame();
+      event.preventDefault();
+      break;
+  }
+}
+
+// Add keyboard event listener
+document.addEventListener('keydown', handleKeyboardControls);
 
 document.getElementById('overlay').onclick = () => {
   document.getElementById('overlay').style.display = 'none';
@@ -538,6 +631,13 @@ document.getElementById('overlay').onclick = () => {
     allImages.forEach(img => {
       img.classList.add('inactive');
     });
+    
+    // Reset animation control variables
+    isPaused = false;
+    currentFrameIndex = 0;
+    if (currentTimeout) {
+      clearTimeout(currentTimeout);
+    }
     
     // Wait for greying effect to be visible, then start animation
     setTimeout(() => {
