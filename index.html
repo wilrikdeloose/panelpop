@@ -127,7 +127,7 @@
       background-color: white;
       padding: 8px 12px;
       font-family: "Comic Sans MS", "Comic Sans", cursive;
-      font-size: 16px;
+      font-size: 24px;
       position: absolute;
       z-index: 10;
       border: var(--border-width) solid black;
@@ -208,7 +208,7 @@ const config = {
   
   // Image transition settings
   transition: {
-    transitionEffectDuration: 1.0, // Time in seconds it takes for visual effects (like greyscale) to complete their transition
+    transitionEffectDuration: 1.0, // Time in seconds it takes for visual effects (like greyscale) to complete their transition (not affecting total animation time)
     initialDelay: 5000, // ms delay before starting animation
     timeBetweenSlides: 3500, // ms between slides
     greyOutDelay: 500, // ms to wait after greying out before moving to next slide
@@ -333,28 +333,6 @@ function createNarrationBox(narration) {
   const box = document.createElement('div');
   box.className = `narration-box narration-box-${narration.position}`;
   box.textContent = narration.line;
-  
-  // Calculate optimal width based on text length
-  // Use a more accurate width estimation: ~8px per character for Comic Sans
-  // Add extra for padding and adjust based on text length patterns
-  const textLength = narration.line.length;
-  let estimatedWidth;
-  
-  if (textLength < 10) {
-    // Very short text
-    estimatedWidth = textLength * 12 + 30; // More space per character for short phrases
-  } else if (textLength < 20) {
-    // Short to medium text
-    estimatedWidth = textLength * 10 + 40;
-  } else if (textLength < 40) {
-    // Medium text
-    estimatedWidth = textLength * 8 + 60;
-  } else {
-    // Long text - cap at a reasonable max width and let it wrap
-    estimatedWidth = Math.min(textLength * 7 + 80, 350);
-  }
-  
-  box.style.width = `${estimatedWidth}px`;
   
   // Apply direct positioning for more reliability
   if (narration.position === 'top-left') {
