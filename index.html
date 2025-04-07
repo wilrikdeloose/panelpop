@@ -591,16 +591,24 @@ function togglePause() {
 
 // Handle keyboard controls
 function handleKeyboardControls(event) {
-  // Make sure the overlay is not visible (animation has started)
+  if (event.key === ' ') { // Spacebar
+    // If overlay is still visible, start the animation (same as clicking)
+    if (document.getElementById('overlay').style.display !== 'none') {
+      startAnimation();
+    } else {
+      // Otherwise toggle pause/resume
+      togglePause();
+    }
+    event.preventDefault();
+    return;
+  }
+  
+  // Only process arrow keys if animation has started
   if (document.getElementById('overlay').style.display !== 'none') {
     return;
   }
   
   switch (event.key) {
-    case ' ': // Spacebar
-      togglePause();
-      event.preventDefault();
-      break;
     case 'ArrowLeft':
       goToPreviousFrame();
       event.preventDefault();
@@ -612,10 +620,8 @@ function handleKeyboardControls(event) {
   }
 }
 
-// Add keyboard event listener
-document.addEventListener('keydown', handleKeyboardControls);
-
-document.getElementById('overlay').onclick = () => {
+// Extract the animation start logic into a separate function
+function startAnimation() {
   document.getElementById('overlay').style.display = 'none';
   
   // Request fullscreen mode
@@ -656,7 +662,13 @@ document.getElementById('overlay').onclick = () => {
       startComicAnimation();
     }, config.transition.greyOutDelay);
   }, config.transition.initialDelay);
-};
+}
+
+// Add keyboard event listener
+document.addEventListener('keydown', handleKeyboardControls);
+
+// Update the overlay click handler to use the startAnimation function
+document.getElementById('overlay').onclick = startAnimation;
 
 // Add handler for exiting fullscreen
 document.addEventListener('fullscreenchange', handleFullscreenChange);
