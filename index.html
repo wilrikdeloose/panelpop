@@ -20,13 +20,35 @@
       --greyscale-amount: 0.8;
     }
     
+    html {
+      /* Apply overflow and scrollbar hiding to html element too */
+      overflow-x: auto; 
+      overflow-y: hidden; 
+      scrollbar-width: none; /* Firefox */
+    }
+    html::-webkit-scrollbar {
+        display: none; /* WebKit browsers */
+    }
+
     body {
       margin: 0;
       padding: 0;
-      overflow-x: hidden;
-      overflow-y: hidden;
+      /* Allow horizontal scrolling logic on body */
+      overflow-x: auto; 
+      /* Keep vertical scrolling hidden */
+      overflow-y: hidden; 
       background-color: #fff;
       font-family: Arial, sans-serif;
+      /* Ensure body takes full viewport width initially */
+      width: 100vw;
+      height: 100vh;
+      /* Hide scrollbar standard on body */
+      scrollbar-width: none; 
+    }
+    
+    /* Hide scrollbar for Chrome, Safari, Edge on body */
+    body::-webkit-scrollbar {
+      display: none;
     }
     #overlay {
       position: fixed;
@@ -64,18 +86,27 @@
       top: 0; left: 0;
       transition: transform var(--transition-duration) ease-in-out;
       transform-origin: top left;
-      width: calc(100% - calc(var(--padding) * 2));
+      height: 100vh;
     }
     .masonry-container {
-      column-count: var(--column-count);
-      column-gap: var(--column-gap);
-      width: 100%;
+      display: flex;
+      flex-wrap: nowrap;
+      width: max-content;
+      height: 100%;
+      gap: var(--column-gap);
+    }
+    .chapter-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: max-content;
+      gap: var(--column-gap);
+      flex-shrink: 0;
+      width: calc((100vw - 4 * var(--padding) - 2 * var(--column-gap)) / 3 * 3 + 2 * var(--column-gap));
+      max-width: 1200px;
+      height: 100%;
     }
     .comic-item {
-      display: inline-block;
       width: 100%;
-      margin-bottom: var(--item-margin);
-      break-inside: avoid;
       border: none;
       padding: 0;
     }
@@ -85,8 +116,7 @@
       display: block;
       border: var(--border-width) solid black;
       box-sizing: border-box;
-      transition: filter var(--transition-duration) ease-in-out,
-                  box-shadow var(--transition-duration) ease-in-out;
+      transition: filter var(--transition-duration) ease-in-out;
       line-height: 0;
       margin: 0;
       padding: 0;
@@ -112,22 +142,16 @@
     .cover-item {
       display: block;
       width: 100%;
-      margin-bottom: var(--item-margin);
-      break-inside: avoid;
       border: none;
       padding: 0;
+      grid-column: 1 / span 3;
     }
-    /* Make sure cover spans all columns */
-    .cover-item {
-      column-span: all;
-    }
-    
     /* Narration box base styling */
     .narration-box {
       background-color: white;
       padding: 8px 12px;
       font-family: "Comic Sans MS", "Comic Sans", cursive;
-      font-size: 24px;
+      font-size: 18px;
       position: absolute;
       z-index: 10;
       border: var(--border-width) solid black;
@@ -210,7 +234,7 @@ const config = {
   transition: {
     transitionEffectDuration: 1.0, // Time in seconds it takes for visual effects (like greyscale) to complete their transition (not affecting total animation time)
     initialDelay: 5000, // ms delay before starting animation
-    timeBetweenSlides: 3500, // ms between slides
+    timeBetweenSlides: 3300, // ms between slides
     greyOutDelay: 500, // ms to wait after greying out before moving to next slide
     startingFrameIndex: 0 // The frame index to start from (0 = first image in the array)
   },
@@ -354,79 +378,99 @@ function createNarrationBox(narration) {
 
 function setupImages(callback) {
   let loaded = 0;
-  
-  // Set initial background to first image
-  if (config.images.length > 0) {
-    background.style.backgroundImage = `url(${getImagePath(config.images[0].path)})`;
-    updateBackgroundFilter();
-  }
-  
-  config.images.forEach((imgObj, index) => {
+  const totalImages = config.images.length;
+
+  // Clear existing masonry content
+  masonry.innerHTML = '';
+
+  // Group images by chapter
+  const chapters = {};
+  config.images.forEach(imgObj => {
+    if (!chapters[imgObj.chapter]) {
+      chapters[imgObj.chapter] = [];
+    }
+    chapters[imgObj.chapter].push(imgObj);
+  });
+
+  // Function to create an image item (modified for grid placement)
+  function createImageElement(imgObj, className, onLoadCallback) {
     const item = document.createElement('div');
-    
-    // Add data attribute for chapter
+    item.className = className; // 'cover-item' or 'comic-item'
     item.dataset.chapter = imgObj.chapter;
     
-    // Create container for relative positioning
     const container = document.createElement('div');
     container.className = 'img-container';
     
-    // Check if this is a cover image
-    if (imgObj.isCover) {
-      item.className = 'cover-item';
-      const img = new Image();
-      img.src = getImagePath(imgObj.path);
-      img.className = "cover-image";
-      // Let CSS handle border styling
-      allImages.push(img);
-      
-      img.onload = () => {
-        loaded++;
-        if (loaded === config.images.length) {
-          setTimeout(() => { calculatePositions(); if (callback) callback(); }, 100);
-        }
-      };
-      img.onerror = () => console.error("Failed to load image:", imgObj.path);
-      
-      container.appendChild(img);
-      
-      // Add narration if specified
-      if (imgObj.narration && imgObj.narration.line) {
-        const narrationBox = createNarrationBox(imgObj.narration);
-        container.appendChild(narrationBox);
-      }
-      
-      item.appendChild(container);
-      masonry.appendChild(item);
-    } else {
-      // Regular comic items
-      item.className = 'comic-item';
-      const img = new Image();
-      img.src = getImagePath(imgObj.path);
-      img.className = "comic-img";
-      // Let CSS handle border styling
-      allImages.push(img);
-      
-      img.onload = () => {
-        loaded++;
-        if (loaded === config.images.length) {
-          setTimeout(() => { calculatePositions(); if (callback) callback(); }, 100);
-        }
-      };
-      img.onerror = () => console.error("Failed to load image:", imgObj.path);
-      
-      container.appendChild(img);
-      
-      // Add narration if specified
-      if (imgObj.narration && imgObj.narration.line) {
-        const narrationBox = createNarrationBox(imgObj.narration);
-        container.appendChild(narrationBox);
-      }
-      
-      item.appendChild(container);
-      masonry.appendChild(item);
+    const img = new Image();
+    img.src = getImagePath(imgObj.path);
+    img.className = imgObj.isCover ? 'cover-image' : 'comic-img';
+    allImages.push(img);
+    
+    img.onload = onLoadCallback;
+    img.onerror = () => console.error("Failed to load image:", imgObj.path);
+    
+    container.appendChild(img);
+    
+    if (imgObj.narration && imgObj.narration.line) {
+      const narrationBox = createNarrationBox(imgObj.narration);
+      container.appendChild(narrationBox);
     }
+    
+    item.appendChild(container);
+    return item;
+  }
+
+  // Process each chapter to create its container and grid
+  Object.keys(chapters).sort((a, b) => a - b).forEach(chapterNumber => {
+    const chapterImages = chapters[chapterNumber];
+    const chapterContainer = document.createElement('div');
+    chapterContainer.className = 'chapter-container';
+    
+    let coverItem = null;
+    const regularItems = [];
+
+    // Separate cover and regular images for the chapter
+    chapterImages.forEach(imgObj => {
+      const imageElement = createImageElement(imgObj, imgObj.isCover ? 'cover-item' : 'comic-item', () => {
+        loaded++;
+        if (loaded === totalImages) {
+          setTimeout(() => { calculatePositions(); if (callback) callback(); }, 100);
+        }
+      });
+
+      if (imgObj.isCover) {
+        coverItem = imageElement;
+      } else {
+        regularItems.push(imageElement);
+      }
+    });
+
+    // Add cover image first (if it exists)
+    if (coverItem) {
+      chapterContainer.appendChild(coverItem); // Cover spans columns via CSS
+    }
+
+    // Add regular images to the grid (max 9)
+    // Place items column by column (top to bottom, left to right)
+    for (let i = 0; i < Math.min(regularItems.length, 9); i++) {
+      const item = regularItems[i];
+      const col = Math.floor(i / 3) + 1; // 0,1,2 -> col 1; 3,4,5 -> col 2; 6,7,8 -> col 3
+      const row = (i % 3) + 2; // Grid row starts at 2 (below cover)
+      item.style.gridRow = row;
+      item.style.gridColumn = col;
+      chapterContainer.appendChild(item);
+    }
+
+    // Append the chapter container to the main masonry flex container
+    masonry.appendChild(chapterContainer);
   });
+  
+  // Set initial background (optional, could be first cover of first chapter)
+  if (config.images.length > 0) {
+    const firstImage = config.images.find(img => img.isCover && img.chapter == 1) || config.images[0];
+    background.style.backgroundImage = `url(${getImagePath(firstImage.path)})`;
+    updateBackgroundFilter();
+  }
 }
 
 function updateBackgroundFilter() {
@@ -436,16 +480,27 @@ function updateBackgroundFilter() {
 
 function calculatePositions() {
   positions = [];
+  const canvasRect = canvas.getBoundingClientRect();
+  const scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+  const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+  
   // Include both cover-item and comic-item elements
-  document.querySelectorAll('.comic-item, .cover-item').forEach(item => {
-    const rect = item.getBoundingClientRect();
+  document.querySelectorAll('.chapter-container .comic-item, .chapter-container .cover-item').forEach(item => {
+    const itemRect = item.getBoundingClientRect();
+    
+    // Calculate position relative to the start of the #canvas element,
+    // taking scroll position into account.
     positions.push({
-      x: item.offsetLeft - config.layout.padding,
-      y: item.offsetTop - config.layout.padding,
-      w: rect.width + (config.layout.padding * 2),
-      h: rect.height + (config.layout.padding * 2)
+      x: itemRect.left + scrollLeft - canvasRect.left,
+      y: itemRect.top + scrollTop - canvasRect.top,
+      w: itemRect.width,
+      h: itemRect.height
+      // Removed padding adjustment as it's complex with the new layout
+      // w: itemRect.width + (config.layout.padding * 2),
+      // h: itemRect.height + (config.layout.padding * 2)
     });
   });
+  console.log("Calculated Positions:", positions);
 }
 
 function startComicAnimation() {
@@ -481,7 +536,12 @@ function moveToImage(targetIndex, manual = false) {
 
     const scaleX = window.innerWidth / p.w;
     const scaleY = window.innerHeight / p.h;
-    const scale = Math.min(scaleX, scaleY);
+    // Apply a margin factor (e.g., 0.95 for 5% margin)
+    const marginFactor = 0.95;
+    let scale = Math.min(scaleX, scaleY) * marginFactor;
+    
+    // Ensure scale doesn't become too small if the image is very large initially
+    scale = Math.max(scale, 0.1); 
 
     const translateX = -(p.x - (window.innerWidth / scale - p.w) / 2);
     const translateY = -(p.y - (window.innerHeight / scale - p.h) / 2);
