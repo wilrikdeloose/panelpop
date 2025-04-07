@@ -211,7 +211,8 @@ const config = {
     transitionEffectDuration: 1.0, // Time in seconds it takes for visual effects (like greyscale) to complete their transition
     initialDelay: 5000, // ms delay before starting animation
     timeBetweenSlides: 3500, // ms between slides
-    greyOutDelay: 500 // ms to wait after greying out before moving to next slide
+    greyOutDelay: 500, // ms to wait after greying out before moving to next slide
+    startingFrameIndex: 0 // The frame index to start from (0 = first image in the array)
   },
   
   // Layout settings
@@ -230,34 +231,35 @@ const config = {
   
   // Image paths
   images: [
-    { path: "1_0.png", isCover: true,  chapter: 1, narration: { line: "The adventure begins...", position: "bottom-right" } },
-    { path: "1_1.png", isCover: false, chapter: 1, narration: { line: "Meanwhile, at the bookstore...", position: "top-left" } },
+    { path: "1_0.png", isCover: true,  chapter: 1 },
+    { path: "1_1.png", isCover: false, chapter: 1, narration: { line: "Darkness", position: "top-left" } },
     { path: "1_2.png", isCover: false, chapter: 1 },
-    { path: "1_3.png", isCover: false, chapter: 1, narration: { line: "Suddenly!", position: "top-right" } },
-    { path: "1_4.png", isCover: false, chapter: 1 },
-    { path: "1_5.png", isCover: false, chapter: 1, narration: { line: "The revelation...", position: "bottom-left" } },
-    { path: "1_6.png", isCover: false, chapter: 1 },
+    { path: "1_3.png", isCover: false, chapter: 1 },
+    { path: "1_4.png", isCover: false, chapter: 1, narration: { line: "Something's off", position: "top-right" } },
+    { path: "1_5.png", isCover: false, chapter: 1, narration: { line: "Bzzzt, scanning", position: "bottom-right" } },
+    { path: "1_6.png", isCover: false, chapter: 1, narration: { line: "We march!", position: "bottom-left" } },
     { path: "1_7.png", isCover: false, chapter: 1 },
     { path: "1_8.png", isCover: false, chapter: 1 },
-    { path: "1_9.png", isCover: false, chapter: 1 },
-    { path: "2_0.png", isCover: true,  chapter: 2, narration: { line: "Chapter 2: The New Beginning", position: "bottom-right" } },
+    { path: "1_9.png", isCover: false, chapter: 1, narration: { line: "The city...", position: "bottom-left" } },
+    // Chapter 2
+    { path: "2_0.png", isCover: true,  chapter: 2 },
     { path: "2_1.png", isCover: false, chapter: 2 },
-    { path: "2_2.png", isCover: false, chapter: 2 },
+    { path: "2_2.png", isCover: false, chapter: 2, narration: { line: "Investigating", position: "bottom-left" } },
     { path: "2_3.png", isCover: false, chapter: 2 },
-    { path: "2_4.png", isCover: false, chapter: 2 },
-    { path: "2_5.png", isCover: false, chapter: 2 },
+    { path: "2_4.png", isCover: false, chapter: 2, narration: { line: "An ambush", position: "bottom-right" } },
+    { path: "2_5.png", isCover: false, chapter: 2, narration: { line: "ATTACK!", position: "bottom-left" } },
     { path: "2_6.png", isCover: false, chapter: 2 },
     { path: "2_7.png", isCover: false, chapter: 2 },
-    { path: "2_8.png", isCover: false, chapter: 2 },
-    { path: "2_9.png", isCover: false, chapter: 2 },
+    { path: "2_8.png", isCover: false, chapter: 2, narration: { line: "Sniff, sniff", position: "top-right" } },
+    { path: "2_9.png", isCover: false, chapter: 2, narration: { line: "INTRUDER FOUND!", position: "bottom-left" } },
     // Chapter 3
     { path: "3_0.png", isCover: true,  chapter: 3 },
     { path: "3_1.png", isCover: false, chapter: 3 },
     { path: "3_2.png", isCover: false, chapter: 3 },
-    { path: "3_3.png", isCover: false, chapter: 3 },
-    { path: "3_4.png", isCover: false, chapter: 3 },
-    { path: "3_5.png", isCover: false, chapter: 3 },
-    { path: "3_6.png", isCover: false, chapter: 3 },
+    { path: "3_3.png", isCover: false, chapter: 3, narration: { line: "Finally inside...", position: "bottom-right" } },
+    { path: "3_4.png", isCover: false, chapter: 3, narration: { line: "It's a trap!", position: "bottom-left" } },
+    { path: "3_5.png", isCover: false, chapter: 3, narration: { line: "FIGHT!", position: "top-right" } },
+    { path: "3_6.png", isCover: false, chapter: 3, narration: { line: "NOOO!", position: "bottom-right" } },
     { path: "3_7.png", isCover: false, chapter: 3 },
     { path: "3_8.png", isCover: false, chapter: 3 },
     { path: "3_9.png", isCover: false, chapter: 3 },
@@ -297,7 +299,7 @@ let allImages = [];
 // Global state variables for animation control
 let isPaused = false;
 let currentTimeout = null;
-let currentFrameIndex = 0;
+let currentFrameIndex = -1; // Start at -1 to indicate no frame is currently shown
 
 // Add a helper function for image paths
 function getImagePath(imagePath) {
@@ -469,14 +471,23 @@ function calculatePositions() {
 }
 
 function startComicAnimation() {
-  currentFrameIndex = 0;
+  // Start the animation with the frame specified in config, subtracting 1 to fix offset
+  const startFrame = config.transition.startingFrameIndex - 1;
   isPaused = false;
-  moveToImage(false);
+  moveToImage(startFrame, false);
 }
 
 // Function to handle frame navigation and animation
-function moveToImage(manual = false) {
-  if (currentFrameIndex >= positions.length) return;
+function moveToImage(targetIndex, manual = false) {
+  // Save the previous index before updating
+  const previousIndex = currentFrameIndex;
+  
+  // Update to the target index
+  currentFrameIndex = targetIndex;
+  
+  // Validate bounds
+  if (currentFrameIndex < 0) currentFrameIndex = 0;
+  if (currentFrameIndex >= positions.length) currentFrameIndex = positions.length - 1;
   
   function zoomToCurrentImage() {
     const p = positions[currentFrameIndex];
@@ -499,19 +510,18 @@ function moveToImage(manual = false) {
 
     canvas.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
 
-    // Only increment the frame index and set up the next transition
-    // if this is part of the automatic animation (not manual navigation)
-    if (!manual) {
-      currentFrameIndex++;
-      
-      // Set up the next frame transition if not paused
-      if (!isPaused) {
-        currentTimeout = setTimeout(() => moveToImage(false), config.transition.timeBetweenSlides);
+    // If this is automatic navigation, schedule the next frame
+    if (!manual && !isPaused) {
+      const nextIndex = currentFrameIndex + 1;
+      if (nextIndex < positions.length) {
+        currentTimeout = setTimeout(() => {
+          moveToImage(nextIndex, false);
+        }, config.transition.timeBetweenSlides);
       }
     }
   }
   
-  // Make all images inactive (greyscale) except the current one
+  // Update image visibility - make all inactive except current
   allImages.forEach((img, i) => {
     if (i === currentFrameIndex) {
       img.classList.remove('inactive');
@@ -524,7 +534,6 @@ function moveToImage(manual = false) {
   if (manual) {
     zoomToCurrentImage();
   } else {
-    // Wait for greyscale transition to complete before zooming
     currentTimeout = setTimeout(zoomToCurrentImage, config.transition.greyOutDelay);
   }
 }
@@ -540,11 +549,9 @@ function goToPreviousFrame() {
   // Pause the animation when using manual controls
   isPaused = true;
   
-  // Go to previous frame (ensure we don't go below 0)
-  currentFrameIndex = Math.max(0, currentFrameIndex - 1);
-  
-  // Focus on the previous frame
-  moveToImage(true);
+  // Move to previous frame (if possible)
+  const prevIndex = Math.max(0, currentFrameIndex - 1);
+  moveToImage(prevIndex, true);
 }
 
 // Function to manually go to next frame
@@ -558,11 +565,9 @@ function goToNextFrame() {
   // Pause the animation when using manual controls
   isPaused = true;
   
-  // Go to next frame (ensure we don't go past the last frame)
-  currentFrameIndex = Math.min(positions.length - 1, currentFrameIndex + 1);
-  
-  // Focus on the next frame
-  moveToImage(true);
+  // Move to next frame (if possible)
+  const nextIndex = Math.min(positions.length - 1, currentFrameIndex + 1);
+  moveToImage(nextIndex, true);
 }
 
 // Function to toggle pause/resume
@@ -576,8 +581,11 @@ function togglePause() {
       currentTimeout = null;
     }
   } else {
-    // If resumed, continue animation from current frame
-    moveToImage(false);
+    // If resumed, continue animation from current frame to next frame
+    const nextIndex = currentFrameIndex + 1;
+    if (nextIndex < positions.length) {
+      moveToImage(nextIndex, false);
+    }
   }
 }
 
@@ -621,22 +629,26 @@ document.getElementById('overlay').onclick = () => {
   
   // Add delay before starting the animation
   setTimeout(() => {
-    // Set initial background to first image
-    if (allImages.length > 0 && config.images.length > 0) {
-      background.style.backgroundImage = `url(${getImagePath(config.images[0].path)})`;
-      updateBackgroundFilter();
-    }
-    
-    // Grey out all images
+    // Grey out all images initially
     allImages.forEach(img => {
       img.classList.add('inactive');
     });
     
     // Reset animation control variables
     isPaused = false;
-    currentFrameIndex = 0;
     if (currentTimeout) {
       clearTimeout(currentTimeout);
+    }
+    
+    // Get the start frame index from config, subtracting 1 to fix offset
+    const startFrame = config.transition.startingFrameIndex - 1;
+    
+    // Set initial background to starting frame
+    if (allImages.length > 0 && config.images.length > 0) {
+      // Ensure we don't exceed bounds
+      const validStartFrame = Math.max(0, Math.min(startFrame, config.images.length - 1));
+      background.style.backgroundImage = `url(${getImagePath(config.images[validStartFrame].path)})`;
+      updateBackgroundFilter();
     }
     
     // Wait for greying effect to be visible, then start animation
