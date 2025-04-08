@@ -253,63 +253,64 @@ const config = {
   },
   
   // Image paths
+  // frameType can be 'normal', 'cover', or 'end'
   images: [
-    { path: "1_0.png", isCover: true,  chapter: 1 },
-    { path: "1_1.png", isCover: false, chapter: 1, narration: { line: "Darkness", position: "top-left" } },
-    { path: "1_2.png", isCover: false, chapter: 1 },
-    { path: "1_3.png", isCover: false, chapter: 1 },
-    { path: "1_4.png", isCover: false, chapter: 1, narration: { line: "Something's off", position: "top-right" } },
-    { path: "1_5.png", isCover: false, chapter: 1, narration: { line: "What's this?", position: "bottom-right" } },
-    { path: "1_6.png", isCover: false, chapter: 1, narration: { line: "We march!", position: "bottom-left" } },
-    { path: "1_7.png", isCover: false, chapter: 1 },
-    { path: "1_8.png", isCover: false, chapter: 1 },
-    { path: "1_9.png", isCover: false, chapter: 1, narration: { line: "The city", position: "bottom-left" } },
+    { path: "1_0.png", frameType: 'cover',  chapter: 1 },
+    { path: "1_1.png", frameType: 'normal', chapter: 1, narration: { line: "Darkness", position: "top-left" } },
+    { path: "1_2.png", frameType: 'normal', chapter: 1 },
+    { path: "1_3.png", frameType: 'normal', chapter: 1 },
+    { path: "1_4.png", frameType: 'normal', chapter: 1, narration: { line: "Something's off", position: "top-right" } },
+    { path: "1_5.png", frameType: 'normal', chapter: 1, narration: { line: "What's this?", position: "bottom-right" } },
+    { path: "1_6.png", frameType: 'normal', chapter: 1, narration: { line: "We march!", position: "bottom-left" } },
+    { path: "1_7.png", frameType: 'normal', chapter: 1 },
+    { path: "1_8.png", frameType: 'normal', chapter: 1 },
+    { path: "1_9.png", frameType: 'normal', chapter: 1, narration: { line: "The city", position: "bottom-left" } },
     // Chapter 2
-    { path: "2_0.png", isCover: true,  chapter: 2 },
-    { path: "2_1.png", isCover: false, chapter: 2 },
-    { path: "2_2.png", isCover: false, chapter: 2, narration: { line: "Investigating", position: "bottom-left" } },
-    { path: "2_3.png", isCover: false, chapter: 2 },
-    { path: "2_4.png", isCover: false, chapter: 2, narration: { line: "An ambush", position: "bottom-right" } },
-    { path: "2_5.png", isCover: false, chapter: 2, narration: { line: "ATTACK!", position: "bottom-left" } },
-    { path: "2_6.png", isCover: false, chapter: 2 },
-    { path: "2_7.png", isCover: false, chapter: 2 },
-    { path: "2_8.png", isCover: false, chapter: 2, narration: { line: "Sniff, sniff", position: "top-right" } },
-    { path: "2_9.png", isCover: false, chapter: 2, narration: { line: "INTRUDER FOUND!", position: "bottom-left" } },
+    { path: "2_0.png", frameType: 'cover',  chapter: 2 },
+    { path: "2_1.png", frameType: 'normal', chapter: 2 },
+    { path: "2_2.png", frameType: 'normal', chapter: 2, narration: { line: "Investigating", position: "bottom-left" } },
+    { path: "2_3.png", frameType: 'normal', chapter: 2 },
+    { path: "2_4.png", frameType: 'normal', chapter: 2, narration: { line: "An ambush", position: "bottom-right" } },
+    { path: "2_5.png", frameType: 'normal', chapter: 2, narration: { line: "ATTACK!", position: "bottom-left" } },
+    { path: "2_6.png", frameType: 'normal', chapter: 2 },
+    { path: "2_7.png", frameType: 'normal', chapter: 2 },
+    { path: "2_8.png", frameType: 'normal', chapter: 2, narration: { line: "Sniff, sniff", position: "top-right" } },
+    { path: "2_9.png", frameType: 'normal', chapter: 2, narration: { line: "INTRUDER FOUND!", position: "bottom-left" } },
     // Chapter 3
-    { path: "3_0.png", isCover: true,  chapter: 3 },
-    { path: "3_1.png", isCover: false, chapter: 3 },
-    { path: "3_2.png", isCover: false, chapter: 3 },
-    { path: "3_3.png", isCover: false, chapter: 3, narration: { line: "Finally inside...", position: "bottom-right" } },
-    { path: "3_4.png", isCover: false, chapter: 3, narration: { line: "It's a trap!", position: "bottom-left" } },
-    { path: "3_5.png", isCover: false, chapter: 3, narration: { line: "FIGHT!", position: "top-right" } },
-    { path: "3_6.png", isCover: false, chapter: 3, narration: { line: "NOOOOOO!", position: "bottom-right" } },
-    { path: "3_7.png", isCover: false, chapter: 3, narration: { line: "ROAR!", position: "bottom-right" } },
-    { path: "3_8.png", isCover: false, chapter: 3 },
-    { path: "3_9.png", isCover: false, chapter: 3, narration: { line: "Oh no, trapped!", position: "bottom-left" } },
+    { path: "3_0.png", frameType: 'cover',  chapter: 3 },
+    { path: "3_1.png", frameType: 'normal', chapter: 3 },
+    { path: "3_2.png", frameType: 'normal', chapter: 3 },
+    { path: "3_3.png", frameType: 'normal', chapter: 3, narration: { line: "Finally inside...", position: "bottom-right" } },
+    { path: "3_4.png", frameType: 'normal', chapter: 3, narration: { line: "It's a trap!", position: "bottom-left" } },
+    { path: "3_5.png", frameType: 'normal', chapter: 3, narration: { line: "FIGHT!", position: "top-right" } },
+    { path: "3_6.png", frameType: 'normal', chapter: 3, narration: { line: "NOOOOOO!", position: "bottom-right" } },
+    { path: "3_7.png", frameType: 'normal', chapter: 3, narration: { line: "ROAR!", position: "bottom-right" } },
+    { path: "3_8.png", frameType: 'normal', chapter: 3 },
+    { path: "3_9.png", frameType: 'normal', chapter: 3, narration: { line: "Oh no, trapped!", position: "bottom-left" } },
     // Chapter 4
-    { path: "4_0.png", isCover: true,  chapter: 4 },
-    { path: "4_1.png", isCover: false, chapter: 4 },
-    { path: "4_2.png", isCover: false, chapter: 4 },
-    { path: "4_3.png", isCover: false, chapter: 4, narration: { line: "What is this place?", position: "top-left" } },
-    { path: "4_4.png", isCover: false, chapter: 4, narration: { line: "YOU'RE NOT REAL!", position: "bottom-right" } },
-    { path: "4_5.png", isCover: false, chapter: 4 },
-    { path: "4_6.png", isCover: false, chapter: 4 },
-    { path: "4_7.png", isCover: false, chapter: 4, narration: { line: "RESIST!", position: "top-right" } },
-    { path: "4_8.png", isCover: false, chapter: 4, narration: { line: "Breaking free", position: "bottom-right" } },
-    { path: "4_9.png", isCover: false, chapter: 4 },
+    { path: "4_0.png", frameType: 'cover',  chapter: 4 },
+    { path: "4_1.png", frameType: 'normal', chapter: 4 },
+    { path: "4_2.png", frameType: 'normal', chapter: 4 },
+    { path: "4_3.png", frameType: 'normal', chapter: 4, narration: { line: "What is this place?", position: "top-left" } },
+    { path: "4_4.png", frameType: 'normal', chapter: 4, narration: { line: "YOU'RE NOT REAL!", position: "bottom-right" } },
+    { path: "4_5.png", frameType: 'normal', chapter: 4 },
+    { path: "4_6.png", frameType: 'normal', chapter: 4 },
+    { path: "4_7.png", frameType: 'normal', chapter: 4, narration: { line: "RESIST!", position: "top-right" } },
+    { path: "4_8.png", frameType: 'normal', chapter: 4, narration: { line: "Breaking free", position: "bottom-right" } },
+    { path: "4_9.png", frameType: 'normal', chapter: 4 },
     // Chapter 5
-    { path: "5_0.png", isCover: true,  chapter: 5 },
-    { path: "5_1.png", isCover: false, chapter: 5, narration: { line: "Climbing the tower", position: "top-right" } },
-    { path: "5_2.png", isCover: false, chapter: 5, narration: { line: "The AI core", position: "top-right" } },
-    { path: "5_3.png", isCover: false, chapter: 5, narration: { line: "The core materializes", position: "bottom-left" } },
-    { path: "5_4.png", isCover: false, chapter: 5 },
-    { path: "5_5.png", isCover: false, chapter: 5 },
-    { path: "5_6.png", isCover: false, chapter: 5, narration: { line: "STRIKE!", position: "bottom-right" } },
-    { path: "5_7.png", isCover: false, chapter: 5, narration: { line: "KABOOOOOM!", position: "top-left" } },
-    { path: "5_8.png", isCover: false, chapter: 5 },
-    { path: "5_9.png", isCover: false, chapter: 5, narration: { line: "Life...", position: "top-left" } },
+    { path: "5_0.png", frameType: 'cover',  chapter: 5 },
+    { path: "5_1.png", frameType: 'normal', chapter: 5, narration: { line: "Climbing the tower", position: "top-right" } },
+    { path: "5_2.png", frameType: 'normal', chapter: 5, narration: { line: "The AI core", position: "top-right" } },
+    { path: "5_3.png", frameType: 'normal', chapter: 5, narration: { line: "The core materializes", position: "bottom-left" } },
+    { path: "5_4.png", frameType: 'normal', chapter: 5 },
+    { path: "5_5.png", frameType: 'normal', chapter: 5 },
+    { path: "5_6.png", frameType: 'normal', chapter: 5, narration: { line: "STRIKE!", position: "bottom-right" } },
+    { path: "5_7.png", frameType: 'normal', chapter: 5, narration: { line: "KABOOOOOM!", position: "top-left" } },
+    { path: "5_8.png", frameType: 'normal', chapter: 5 },
+    { path: "5_9.png", frameType: 'normal', chapter: 5, narration: { line: "Life...", position: "top-left" } },
     // Chapter 6
-    { path: "6_0.png", isCover: true,  chapter: 6 }
+    { path: "6_0.png", frameType: 'cover',  chapter: 6 }
   ]
 };
 
@@ -394,7 +395,7 @@ function setupImages(callback) {
   // Function to create an image item (modified for grid placement)
   function createImageElement(imgObj, className, onLoadCallback) {
     const item = document.createElement('div');
-    item.className = className; // 'cover-item' or 'comic-item'
+    item.className = className; // 'cover-item' or 'comic-item' based on frameType
     item.dataset.chapter = imgObj.chapter;
     
     const container = document.createElement('div');
@@ -402,7 +403,8 @@ function setupImages(callback) {
     
     const img = new Image();
     img.src = getImagePath(imgObj.path);
-    img.className = imgObj.isCover ? 'cover-image' : 'comic-img';
+    // Assign img class based on frameType
+    img.className = imgObj.frameType === 'cover' ? 'cover-image' : 'comic-img'; 
     allImages.push(img);
     
     img.onload = onLoadCallback;
@@ -428,20 +430,25 @@ function setupImages(callback) {
     let coverItem = null;
     const regularItems = [];
 
-    // Separate cover and regular images for the chapter
+    // Separate cover and regular images for the chapter based on frameType
     chapterImages.forEach(imgObj => {
-      const imageElement = createImageElement(imgObj, imgObj.isCover ? 'cover-item' : 'comic-item', () => {
+      // Determine item class based on frameType
+      const itemClassName = imgObj.frameType === 'cover' ? 'cover-item' : 'comic-item';
+      const imageElement = createImageElement(imgObj, itemClassName, () => {
         loaded++;
         if (loaded === totalImages) {
-          setTimeout(() => { calculatePositions(); if (callback) callback(); }, 100);
+          // Ensure positions are calculated after all images potentially affecting layout are loaded
+          setTimeout(() => { calculatePositions(); if (callback) callback(); }, 100); 
         }
       });
 
-      if (imgObj.isCover) {
+      // Group based on frameType
+      if (imgObj.frameType === 'cover') {
         coverItem = imageElement;
-      } else {
+      } else if (imgObj.frameType === 'normal') { // Only add 'normal' frames to regular items for now
         regularItems.push(imageElement);
-      }
+      } 
+      // 'end' frames are ignored for layout purposes currently
     });
 
     // Add cover image first (if it exists)
@@ -449,12 +456,12 @@ function setupImages(callback) {
       chapterContainer.appendChild(coverItem); // Cover spans columns via CSS
     }
 
-    // Add regular images to the grid (max 9)
-    // Place items column by column (top to bottom, left to right)
+    // Add regular ('normal') images to the grid
     for (let i = 0; i < Math.min(regularItems.length, 9); i++) {
       const item = regularItems[i];
-      const col = Math.floor(i / 3) + 1; // 0,1,2 -> col 1; 3,4,5 -> col 2; 6,7,8 -> col 3
-      const row = (i % 3) + 2; // Grid row starts at 2 (below cover)
+      // Calculate grid position (column-major order)
+      const col = Math.floor(i / 3) + 1; // Column index (1, 2, or 3)
+      const row = (i % 3) + (coverItem ? 2 : 1); // Row index (starts at 1 if no cover, 2 if cover exists)
       item.style.gridRow = row;
       item.style.gridColumn = col;
       chapterContainer.appendChild(item);
@@ -464,11 +471,14 @@ function setupImages(callback) {
     masonry.appendChild(chapterContainer);
   });
   
-  // Set initial background (optional, could be first cover of first chapter)
+  // Set initial background using the first 'cover' image of chapter 1, or the first image overall
   if (config.images.length > 0) {
-    const firstImage = config.images.find(img => img.isCover && img.chapter == 1) || config.images[0];
-    background.style.backgroundImage = `url(${getImagePath(firstImage.path)})`;
-    updateBackgroundFilter();
+    const firstCover = config.images.find(img => img.frameType === 'cover' && img.chapter == 1);
+    const firstImage = firstCover || config.images[0]; // Fallback to the very first image if no chapter 1 cover
+    if (firstImage) {
+      background.style.backgroundImage = `url(${getImagePath(firstImage.path)})`;
+      updateBackgroundFilter();
+    }
   }
 }
 
@@ -523,20 +533,20 @@ function moveToImage(targetIndex, manual = false) {
   // Update to the target index
   currentFrameIndex = targetIndex;
 
-  // Validate bounds
+  // Validate bounds (using allImages which corresponds to laid-out items)
+  const totalFramesInLayout = allImages.length; // Use the count of images actually added to the layout
   if (currentFrameIndex < 0) currentFrameIndex = 0;
-  if (currentFrameIndex >= positions.length) {
+  if (currentFrameIndex >= totalFramesInLayout) {
     // If we reach the end, stop or loop? For now, stop.
-    currentFrameIndex = positions.length - 1;
+    currentFrameIndex = totalFramesInLayout - 1;
     isPaused = true; // Stop automatic progression
-    console.log("Reached end of comic.");
+    console.log("Reached end of comic layout.");
      // Ensure the last frame is active and zoomed correctly
-     // (The rest of the function will handle this if we just proceed)
   }
   
-  // Prevent further execution if index is invalid after correction (e.g., empty positions array)
-  if (currentFrameIndex < 0 || currentFrameIndex >= positions.length) {
-      console.error("Invalid frame index or no positions calculated.");
+  // Prevent further execution if index is invalid after correction (e.g., empty positions/images array)
+  if (currentFrameIndex < 0 || currentFrameIndex >= totalFramesInLayout || totalFramesInLayout === 0) {
+      console.error("Invalid frame index or no images/positions available.");
       isPaused = true;
       return;
   }
@@ -545,26 +555,26 @@ function moveToImage(targetIndex, manual = false) {
   // --- Start transition immediately ---
 
   // 1. Update background image to match the TARGET frame
-  const targetImgConfig = config.images[currentFrameIndex];
+  // Use config.images index which matches currentFrameIndex IF 'end' frames aren't present or handled differently
+  // Assuming currentFrameIndex directly maps to config.images for now (needs adjustment if 'end' frames exist but aren't laid out)
+  const targetImgConfig = config.images[currentFrameIndex]; 
   if (targetImgConfig) {
     background.style.backgroundImage = `url(${getImagePath(targetImgConfig.path)})`;
     updateBackgroundFilter(); // Update brightness/blur etc.
   }
 
-  // 2. Update image visibility (active/inactive classes)
-  // This will trigger the CSS filter transition
+  // 2. Update image visibility (active/inactive classes) using allImages array
   allImages.forEach((img, i) => {
     if (i === currentFrameIndex) {
       img.classList.remove('inactive');
     } else {
-      // Only add inactive if it's not already there
       if (!img.classList.contains('inactive')) {
         img.classList.add('inactive');
       }
     }
   });
 
-  // 3. Calculate and apply the transform for zooming/panning
+  // 3. Calculate and apply the transform for zooming/panning using positions array
   const p = positions[currentFrameIndex];
   if (!p) {
       console.error("Position not found for index:", currentFrameIndex);
@@ -581,14 +591,13 @@ function moveToImage(targetIndex, manual = false) {
   const translateX = -(p.x - (window.innerWidth / scale - p.w) / 2);
   const translateY = -(p.y - (window.innerHeight / scale - p.h) / 2);
 
-  // This triggers the CSS transform transition
   canvas.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
 
   // 4. Schedule the next frame if animating automatically AND not paused
   if (!manual && !isPaused) {
     const nextIndex = currentFrameIndex + 1;
-    // Check if the *next* index is valid before scheduling
-    if (nextIndex < positions.length) {
+    // Check if the *next* index is valid within the layout
+    if (nextIndex < totalFramesInLayout) { 
       currentTimeout = setTimeout(() => {
         moveToImage(nextIndex, false);
       }, config.transition.timeBetweenSlides);
@@ -694,7 +703,7 @@ function startAnimation() {
     document.documentElement.msRequestFullscreen();
   }
   
-  // Grey out all images initially
+  // Grey out all images initially (using allImages array)
   allImages.forEach(img => {
     img.classList.add('inactive');
   });
@@ -707,24 +716,29 @@ function startAnimation() {
   }
   
   // Get the start frame index from config (converting 1-based to 0-based)
-  let actualStartFrameIndex = Math.max(0, config.transition.startingFrameIndex - 1);
-  actualStartFrameIndex = Math.min(actualStartFrameIndex, config.images.length - 1); // Ensure within bounds
+  // This index refers to the config.images array
+  let configStartIndex = Math.max(0, config.transition.startingFrameIndex - 1);
+  configStartIndex = Math.min(configStartIndex, config.images.length - 1); // Ensure within config bounds
+
+  // **** IMPORTANT ****
+  // We need to find the corresponding index in the `allImages` / `positions` array.
+  // This is non-trivial if 'end' frames (or other non-layout types) exist and are skipped during setup.
+  // For now, ASSUME a direct mapping (config index = layout index) which holds true if only 'cover' and 'normal' are used and laid out.
+  // A more robust solution would involve mapping config indices to layout indices during setupImages.
+  let actualStartLayoutIndex = configStartIndex; // Simplistic assumption for now
+  actualStartLayoutIndex = Math.max(0, Math.min(actualStartLayoutIndex, allImages.length - 1)); // Clamp to layout bounds
   
-  // Set initial background to starting frame
-  if (config.images.length > 0) {
-    background.style.backgroundImage = `url(${getImagePath(config.images[actualStartFrameIndex].path)})`;
+  // Set initial background to starting frame (using config index)
+  if (config.images.length > 0 && config.images[configStartIndex]) {
+    background.style.backgroundImage = `url(${getImagePath(config.images[configStartIndex].path)})`;
     updateBackgroundFilter();
   }
   
   // Add delay before starting the animation sequence
   currentTimeout = setTimeout(() => {
-    // Call moveToImage directly for the first frame to initiate the sequence
-    moveToImage(actualStartFrameIndex, false); 
+    // Call moveToImage with the calculated LAYOUT index
+    moveToImage(actualStartLayoutIndex, false); 
   }, config.transition.initialDelay);
-
-  // No longer need the separate startComicAnimation call triggered by timeout,
-  // as the initial moveToImage handles the first step. We can remove the old startComicAnimation call.
-  // REMOVED: setTimeout(() => { startComicAnimation(); }, config.transition.initialDelay);
 }
 
 // Add keyboard event listener
