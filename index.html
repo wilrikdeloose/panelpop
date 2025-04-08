@@ -235,8 +235,7 @@ const config = {
     transitionEffectDuration: 1.0, // Time in seconds it takes for visual effects (like greyscale) to complete their transition (not affecting total animation time)
     initialDelay: 5000, // ms delay before starting animation
     timeBetweenSlides: 3960, // ms between slides
-    greyOutDelay: 500, // ms to wait after greying out before moving to next slide
-    startingFrameIndex: 0 // The frame index to start from (0 = first image in the array)
+    startingFrameIndex: 1 // The frame index to start from (1 = first image in the array)
   },
   
   // Layout settings
@@ -504,75 +503,99 @@ function calculatePositions() {
 }
 
 function startComicAnimation() {
-  // Start the animation with the frame specified in config, subtracting 1 to fix offset
-  const startFrame = config.transition.startingFrameIndex - 1;
+  // Start the animation with the frame specified in config, converting 1-based to 0-based.
+  let actualStartFrameIndex = Math.max(0, config.transition.startingFrameIndex - 1);
+  actualStartFrameIndex = Math.min(actualStartFrameIndex, config.images.length - 1); // Ensure within bounds
+  
   isPaused = false;
-  moveToImage(startFrame, false);
+  // Call moveToImage directly, the old -1 logic is handled above.
+  moveToImage(actualStartFrameIndex, false);
 }
 
 // Function to handle frame navigation and animation
 function moveToImage(targetIndex, manual = false) {
-  // Save the previous index before updating
-  const previousIndex = currentFrameIndex;
-  
+  // Clear any existing timeout if we are navigating automatically
+  if (!manual && currentTimeout) {
+      clearTimeout(currentTimeout);
+      currentTimeout = null;
+  }
+
   // Update to the target index
   currentFrameIndex = targetIndex;
-  
+
   // Validate bounds
   if (currentFrameIndex < 0) currentFrameIndex = 0;
-  if (currentFrameIndex >= positions.length) currentFrameIndex = positions.length - 1;
-  
-  function zoomToCurrentImage() {
-    const p = positions[currentFrameIndex];
-
-    // Update background image to match current foreground image
-    const currentImg = allImages[currentFrameIndex];
-    if (currentImg) {
-      // Extract the original path from the image object
-      const originalPath = config.images[currentFrameIndex].path;
-      background.style.backgroundImage = `url(${getImagePath(originalPath)})`;
-      updateBackgroundFilter();
-    }
-
-    const scaleX = window.innerWidth / p.w;
-    const scaleY = window.innerHeight / p.h;
-    // Apply a margin factor (e.g., 0.95 for 5% margin)
-    const marginFactor = 0.95;
-    let scale = Math.min(scaleX, scaleY) * marginFactor;
-    
-    // Ensure scale doesn't become too small if the image is very large initially
-    scale = Math.max(scale, 0.1); 
-
-    const translateX = -(p.x - (window.innerWidth / scale - p.w) / 2);
-    const translateY = -(p.y - (window.innerHeight / scale - p.h) / 2);
-
-    canvas.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
-
-    // If this is automatic navigation, schedule the next frame
-    if (!manual && !isPaused) {
-      const nextIndex = currentFrameIndex + 1;
-      if (nextIndex < positions.length) {
-        currentTimeout = setTimeout(() => {
-          moveToImage(nextIndex, false);
-        }, config.transition.timeBetweenSlides);
-      }
-    }
+  if (currentFrameIndex >= positions.length) {
+    // If we reach the end, stop or loop? For now, stop.
+    currentFrameIndex = positions.length - 1;
+    isPaused = true; // Stop automatic progression
+    console.log("Reached end of comic.");
+     // Ensure the last frame is active and zoomed correctly
+     // (The rest of the function will handle this if we just proceed)
   }
   
-  // Update image visibility - make all inactive except current
+  // Prevent further execution if index is invalid after correction (e.g., empty positions array)
+  if (currentFrameIndex < 0 || currentFrameIndex >= positions.length) {
+      console.error("Invalid frame index or no positions calculated.");
+      isPaused = true;
+      return;
+  }
+
+
+  // --- Start transition immediately ---
+
+  // 1. Update background image to match the TARGET frame
+  const targetImgConfig = config.images[currentFrameIndex];
+  if (targetImgConfig) {
+    background.style.backgroundImage = `url(${getImagePath(targetImgConfig.path)})`;
+    updateBackgroundFilter(); // Update brightness/blur etc.
+  }
+
+  // 2. Update image visibility (active/inactive classes)
+  // This will trigger the CSS filter transition
   allImages.forEach((img, i) => {
     if (i === currentFrameIndex) {
       img.classList.remove('inactive');
     } else {
-      img.classList.add('inactive');
+      // Only add inactive if it's not already there
+      if (!img.classList.contains('inactive')) {
+        img.classList.add('inactive');
+      }
     }
   });
-  
-  // If manual navigation, zoom immediately; otherwise, wait for greyscale transition
-  if (manual) {
-    zoomToCurrentImage();
-  } else {
-    currentTimeout = setTimeout(zoomToCurrentImage, config.transition.greyOutDelay);
+
+  // 3. Calculate and apply the transform for zooming/panning
+  const p = positions[currentFrameIndex];
+  if (!p) {
+      console.error("Position not found for index:", currentFrameIndex);
+      isPaused = true; // Stop if we can't find position data
+      return;
+  }
+
+  const scaleX = window.innerWidth / p.w;
+  const scaleY = window.innerHeight / p.h;
+  const marginFactor = 0.95;
+  let scale = Math.min(scaleX, scaleY) * marginFactor;
+  scale = Math.max(scale, 0.1); // Prevent excessive scaling
+
+  const translateX = -(p.x - (window.innerWidth / scale - p.w) / 2);
+  const translateY = -(p.y - (window.innerHeight / scale - p.h) / 2);
+
+  // This triggers the CSS transform transition
+  canvas.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+
+  // 4. Schedule the next frame if animating automatically AND not paused
+  if (!manual && !isPaused) {
+    const nextIndex = currentFrameIndex + 1;
+    // Check if the *next* index is valid before scheduling
+    if (nextIndex < positions.length) {
+      currentTimeout = setTimeout(() => {
+        moveToImage(nextIndex, false);
+      }, config.transition.timeBetweenSlides);
+    } else {
+       console.log("End of sequence reached, not scheduling next frame.");
+       // Optional: Add any end-of-sequence behavior here
+    }
   }
 }
 
@@ -671,35 +694,37 @@ function startAnimation() {
     document.documentElement.msRequestFullscreen();
   }
   
-  // Add delay before starting the animation
-  setTimeout(() => {
-    // Grey out all images initially
-    allImages.forEach(img => {
-      img.classList.add('inactive');
-    });
-    
-    // Reset animation control variables
-    isPaused = false;
-    if (currentTimeout) {
-      clearTimeout(currentTimeout);
-    }
-    
-    // Get the start frame index from config, subtracting 1 to fix offset
-    const startFrame = config.transition.startingFrameIndex - 1;
-    
-    // Set initial background to starting frame
-    if (allImages.length > 0 && config.images.length > 0) {
-      // Ensure we don't exceed bounds
-      const validStartFrame = Math.max(0, Math.min(startFrame, config.images.length - 1));
-      background.style.backgroundImage = `url(${getImagePath(config.images[validStartFrame].path)})`;
-      updateBackgroundFilter();
-    }
-    
-    // Wait for greying effect to be visible, then start animation
-    setTimeout(() => {
-      startComicAnimation();
-    }, config.transition.greyOutDelay);
+  // Grey out all images initially
+  allImages.forEach(img => {
+    img.classList.add('inactive');
+  });
+  
+  // Reset animation control variables
+  isPaused = false;
+  if (currentTimeout) {
+    clearTimeout(currentTimeout);
+    currentTimeout = null;
+  }
+  
+  // Get the start frame index from config (converting 1-based to 0-based)
+  let actualStartFrameIndex = Math.max(0, config.transition.startingFrameIndex - 1);
+  actualStartFrameIndex = Math.min(actualStartFrameIndex, config.images.length - 1); // Ensure within bounds
+  
+  // Set initial background to starting frame
+  if (config.images.length > 0) {
+    background.style.backgroundImage = `url(${getImagePath(config.images[actualStartFrameIndex].path)})`;
+    updateBackgroundFilter();
+  }
+  
+  // Add delay before starting the animation sequence
+  currentTimeout = setTimeout(() => {
+    // Call moveToImage directly for the first frame to initiate the sequence
+    moveToImage(actualStartFrameIndex, false); 
   }, config.transition.initialDelay);
+
+  // No longer need the separate startComicAnimation call triggered by timeout,
+  // as the initial moveToImage handles the first step. We can remove the old startComicAnimation call.
+  // REMOVED: setTimeout(() => { startComicAnimation(); }, config.transition.initialDelay);
 }
 
 // Add keyboard event listener
